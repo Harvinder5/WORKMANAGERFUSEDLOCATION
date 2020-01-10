@@ -1,21 +1,20 @@
 package com.example.myapplication;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.myapplication.activities.MainActivity;
 import com.example.myapplication.model.LocationModel;
+import com.example.myapplication.utils.Preferences;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;

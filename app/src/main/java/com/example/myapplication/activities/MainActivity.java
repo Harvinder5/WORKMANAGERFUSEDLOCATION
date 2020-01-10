@@ -1,8 +1,7 @@
-package com.example.myapplication;
+package com.example.myapplication.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,26 +10,20 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
+import com.example.myapplication.MyWorker;
+import com.example.myapplication.R;
 import com.example.myapplication.adapter.MyAdapter;
 import com.example.myapplication.model.LocationModel;
+import com.example.myapplication.utils.Preferences;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
-
-import static com.example.myapplication.MyWorker.CHANNEL_ID;
 
 public class MainActivity extends AppCompatActivity implements MyAdapter.MyInterface{
     public static final int REQUEST_FINE_LOCATION = 100;
