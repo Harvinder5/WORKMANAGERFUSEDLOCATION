@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.myapplication.model.LocationModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -23,6 +24,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -31,7 +33,7 @@ public class MyWorker extends Worker {
 
     private static final String TAG = "HH";
 
-   public static final String   CHANNEL_ID = "khfjshfkshfks";
+    public static final String CHANNEL_ID = "khfjshfkshfks";
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -59,7 +61,9 @@ public class MyWorker extends Worker {
      */
     private LocationCallback mLocationCallback;
 
-Preferences preferences;
+    ArrayList<LocationModel> locationDataList;
+
+    Preferences preferences;
 
     public MyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -77,8 +81,8 @@ Preferences preferences;
             @Override
             public void onLocationResult(LocationResult locationResult) {
 
-                 Location location = locationResult.getLastLocation();
-                Log.d(TAG, "onLocationResult: "+location);
+                Location location = locationResult.getLastLocation();
+                Log.d(TAG, "onLocationResult: " + location);
                 super.onLocationResult(locationResult);
             }
         };
@@ -96,11 +100,11 @@ Preferences preferences;
                         public void onComplete(@NonNull Task<Location> task) {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 mLocation = task.getResult();
-                                Log.d(TAG, "Location at : "+ Calendar.getInstance().getTime()+"  " + mLocation);
+                                Log.d(TAG, "Location at : " + Calendar.getInstance().getTime() + "  " + mLocation);
 
-                               preferences.setString("HH",preferences.getString("HH")+"  Time "+ Calendar.getInstance().getTime()+"  "+"long : "+ mLocation.getLongitude()+"   lat : "+mLocation.getLatitude()+" \n ");
+                                preferences.setString("HH", preferences.getString("HH") + "  Time " + Calendar.getInstance().getTime() + "  " + "long : " + mLocation.getLongitude() + "   lat : " + mLocation.getLatitude() + " \n !!!");
 
-                                createNotification(mLocation.toString() ,Calendar.getInstance().getTime()+"  ");
+                                createNotification(mLocation.toString(), Calendar.getInstance().getTime() + "  ");
 
                                 mFusedLocationClient.removeLocationUpdates(mLocationCallback);
                             } else {
@@ -132,8 +136,8 @@ Preferences preferences;
         // Build notification
         // Actions are just fake
         Notification noti = new Notification.Builder(mContext)
-                .setContentTitle("time : "+time)
-                .setContentText("location : "+ location).setSmallIcon(R.drawable.common_google_signin_btn_text_dark_focused)
+                .setContentTitle("time : " + time)
+                .setContentText("location : " + location).setSmallIcon(R.drawable.common_google_signin_btn_text_dark_focused)
                 .setContentIntent(pIntent)
                 .addAction(R.drawable.common_google_signin_btn_icon_dark, "Call", pIntent)
                 .addAction(R.drawable.common_google_signin_btn_icon_dark_normal, "More", pIntent)
@@ -145,8 +149,12 @@ Preferences preferences;
 
         notificationManager.notify(0, noti);
 
-        Log.d(TAG, "FROM PREFERENCES: "+preferences.getString("HH"));
+        Log.d(TAG, "FROM PREFERENCES: " + preferences.getString("HH"));
 
     }
+
+
+
+
 
 }
