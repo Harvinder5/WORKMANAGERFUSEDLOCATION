@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
         MyAdapter myAdapter = new MyAdapter(this, getData());
         recyclerView.setAdapter(myAdapter);
 
+
     }
 
 
