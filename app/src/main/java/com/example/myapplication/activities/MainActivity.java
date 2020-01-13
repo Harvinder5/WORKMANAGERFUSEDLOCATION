@@ -10,7 +10,6 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import android.Manifest;
-import android.app.NotificationManager;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,12 +24,10 @@ import com.example.myapplication.utils.Preferences;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements MyAdapter.MyInterface{
+public class MainActivity extends AppCompatActivity implements MyAdapter.MyInterface {
     public static final int REQUEST_FINE_LOCATION = 100;
     public static final int REQUEST_COARSE_LOCATION = 101;
-    boolean hasFineLocationPermission;
     public static final String TAG = "HH";
-    NotificationManager manager;
 
     ArrayList<LocationModel> locationDataList;
 
@@ -96,23 +93,21 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
 
 
             case REQUEST_COARSE_LOCATION: {
-                Log.d(TAG, "coarse case mein ");
 
                 if (grantResults.length > 0
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "coarse permission has been granted");
-                }else{
-                    Log.d(TAG,"coarse permission nahi mili");
+                } else {
+                    Log.d(TAG, "coarse permission Not Granted");
                 }
                 return;
             }
         }
-        // other 'case' lines to check for other
-        // permissions this app might request.
+
     }
 
 
-   public void  startWorker(){
+    public void startWorker() {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(MyWorker.class, 15, TimeUnit.MINUTES)
                 .addTag(TAG)
                 .build();
@@ -137,6 +132,6 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
     @Override
     public void onItemClicked(int i) {
 
-        Toast.makeText(this, locationDataList.get(i).getLat(),Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, locationDataList.get(i).getLat(), Toast.LENGTH_SHORT).show();
     }
 }
