@@ -13,40 +13,42 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.myapplication.Interfaces.iOnItemClick;
 import com.example.myapplication.MyWorker;
 import com.example.myapplication.R;
 import com.example.myapplication.adapter.MyAdapter;
 import com.example.myapplication.model.LocationModel;
+import com.example.myapplication.utils.Constants;
 import com.example.myapplication.utils.Preferences;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements MyAdapter.MyInterface {
-    public static final int REQUEST_FINE_LOCATION = 100;
-    public static final int REQUEST_COARSE_LOCATION = 101;
+public class MainActivity extends AppCompatActivity implements iOnItemClick {
+
     public static final String TAG = "HH";
 
     ArrayList<LocationModel> locationDataList;
-
     Preferences preferences;
-
     RecyclerView recyclerView;
+    Button btn_StartWorker, btn_StopWorker;
+    boolean isPermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        preferences = new Preferences(this);
 
+        setContentView(R.layout.activity_main);
+        initializeViews();
 
         ActivityCompat.requestPermissions(MainActivity.this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                REQUEST_FINE_LOCATION);
+                Constants.REQUEST_FINE_LOCATION);
 
-        recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         MyAdapter myAdapter = new MyAdapter(this, getData());
         recyclerView.setAdapter(myAdapter);
@@ -54,12 +56,33 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
 
     }
 
+    private void initializeViews() {
+        preferences = new Preferences(this);
+        btn_StartWorker= findViewById(R.id.start);
+        btn_StartWorker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isPermissionGranted){
+                    startLocationWorker();
+                }
+            }
+        });
+        btn_StopWorker= findViewById(R.id.stop);
+        btn_StopWorker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance().cancelAllWorkByTag(Constants.WORK_REQUEST_TAG);
+                Log.d(TAG, "stop worker: is called ");
+            }
+        });
+        recyclerView = findViewById(R.id.recyclerview);
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_FINE_LOCATION: {
+            case Constants.REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -71,13 +94,12 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
                     if (hasCoarseLocationPermission) {
                         Log.d("HH", "access location has been granted");
 
-                        startWorker();
-
-
+                      isPermissionGranted = true;
+                        
                     } else {
                         ActivityCompat.requestPermissions(MainActivity.this,
                                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                REQUEST_COARSE_LOCATION);
+                                Constants.REQUEST_COARSE_LOCATION);
 
                     }
 
@@ -85,14 +107,14 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
                     Log.d("HH", "!!!! FINE LOCATION not granted");
                     ActivityCompat.requestPermissions(MainActivity.this,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            REQUEST_FINE_LOCATION);
+                            Constants.REQUEST_FINE_LOCATION);
 
                 }
                 return;
             }
 
 
-            case REQUEST_COARSE_LOCATION: {
+            case Constants.REQUEST_COARSE_LOCATION: {
 
                 if (grantResults.length > 0
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
@@ -107,15 +129,14 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
     }
 
 
-    public void startWorker() {
+    private void startLocationWorker() {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(MyWorker.class, 15, TimeUnit.MINUTES)
-                .addTag(TAG)
+                .addTag(Constants.WORK_REQUEST_TAG)
                 .build();
         WorkManager.getInstance().enqueueUniquePeriodicWork("Location", ExistingPeriodicWorkPolicy.KEEP, periodicWork);
     }
 
-
-    public ArrayList<LocationModel> getData() {
+    private ArrayList<LocationModel> getData() {
         locationDataList = new ArrayList<>();
         String[] locationArray = preferences.getString("HH").split("!!!");
         LocationModel locationModel;
@@ -127,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.MyInter
 
         return locationDataList;
     }
-
 
     @Override
     public void onItemClicked(int i) {

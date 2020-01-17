@@ -13,6 +13,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.myapplication.activities.MainActivity;
+import com.example.myapplication.utils.Constants;
 import com.example.myapplication.utils.Preferences;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -29,9 +30,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class MyWorker extends Worker {
 
     private static final String TAG = "HH";
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
-            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
     private Location mLocation;
     private FusedLocationProviderClient mFusedLocationClient;
     private Context mContext;
@@ -56,8 +55,8 @@ public class MyWorker extends Worker {
         };
 
         LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setInterval(Constants.UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(Constants.FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         try {
@@ -92,7 +91,7 @@ public class MyWorker extends Worker {
         return Result.success();
     }
 
-    public void createNotification(String location, String time) {
+    private void createNotification(String location, String time) {
         Intent intent = new Intent(mContext, MainActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(mContext, (int) System.currentTimeMillis(), intent, 0);
         Notification notification = new Notification.Builder(mContext)
@@ -105,7 +104,9 @@ public class MyWorker extends Worker {
                 .build();
         NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notificationManager.notify(0, notification);
+        if (notificationManager != null) {
+            notificationManager.notify(0, notification);
+        }
     }
 
 }
